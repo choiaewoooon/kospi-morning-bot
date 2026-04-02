@@ -1,0 +1,10 @@
+python-telegram-bot>=21.0
+yfinance>=0.2
+httpx>=0.25
+python-dotenv>=1.0
+APScheduler>=3.10
+playwright>=1.40
+Jinja2>=3.1
+matplotlib>=3.8
+mplfinance>=0.12
+aiosqlite>=0.19

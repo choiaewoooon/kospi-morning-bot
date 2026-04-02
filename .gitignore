@@ -1,0 +1,11 @@
+.env
+venv/
+__pycache__/
+*.pyc
+bot.log
+*.png
+*.db
+.DS_Store
+.claude/
+launchd_stdout.log
+launchd_stderr.log

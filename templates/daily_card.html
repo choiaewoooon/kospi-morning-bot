@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e17;
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    color: #d1d4dc;
+    padding: 20px;
+  }
+  #card-wrapper {
+    background: #0f1923;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #1c2636;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #1c2636;
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .header .date {
+    font-size: 13px;
+    color: #636e7e;
+  }
+  .market-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+  }
+  .market-row + .market-row {
+    border-top: 1px solid #1c2636;
+  }
+  .market-name {
+    font-size: 14px;
+    color: #636e7e;
+    font-weight: 500;
+  }
+  .market-right {
+    text-align: right;
+  }
+  .market-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .market-change {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 1px;
+  }
+  .up { color: #26a69a; }
+  .down { color: #ef5350; }
+  .chart-section {
+    margin-top: 16px;
+    border-top: 1px solid #1c2636;
+    padding-top: 16px;
+  }
+  .chart-section img {
+    width: 100%;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+<div id="card-wrapper">
+  <div class="header">
+    <h1>코스피 모닝브리핑</h1>
+    <span class="date">{{ date_str }}</span>
+  </div>
+
+  <div class="market-row">
+    <span class="market-name">NASDAQ</span>
+    <div class="market-right">
+      <div class="market-price">{{ nasdaq_price }}</div>
+      <div class="market-change {{ 'up' if nasdaq_pct >= 0 else 'down' }}">
+        {{ '+' if nasdaq_pct >= 0 else '' }}{{ '%.2f' % nasdaq_pct }}%
+      </div>
+    </div>
+  </div>
+
+  <div class="market-row">
+    <span class="market-name">$KORU</span>
+    <div class="market-right">
+      <div class="market-price">{{ koru_price }}</div>
+      <div class="market-change {{ 'up' if koru_pct >= 0 else 'down' }}">
+        {{ '+' if koru_pct >= 0 else '' }}{{ '%.2f' % koru_pct }}%
+      </div>
+    </div>
+  </div>
+
+  {% if chart_b64 %}
+  <div class="chart-section">
+    <img src="data:image/png;base64,{{ chart_b64 }}" alt="chart">
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>
