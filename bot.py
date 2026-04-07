@@ -46,7 +46,14 @@ logger = logging.getLogger("kospi_bot")
 async def collect_and_post():
     """데이터 수집 후 텔레그램 발송 + 예측 저장"""
     kst = ZoneInfo(config.TIMEZONE)
-    logger.info(f"=== 모닝브리핑 시작 ({datetime.now(kst).strftime('%Y-%m-%d %H:%M')}) ===")
+    now = datetime.now(kst)
+
+    # 주말 스킵 (토=5, 일=6)
+    if now.weekday() >= 5:
+        logger.info(f"주말이라 브리핑 스킵 ({now.strftime('%Y-%m-%d %A')})")
+        return
+
+    logger.info(f"=== 모닝브리핑 시작 ({now.strftime('%Y-%m-%d %H:%M')}) ===")
 
     await db.init_db()
 
@@ -83,8 +90,11 @@ async def collect_and_post():
         # AI 뉴스 요약 + 코스피 전망
         news_summary = await summarize_news(news_items, nasdaq, koru, ewy)
 
+        # 예측 정확도 조회
+        accuracy = await db.get_accuracy(days=30)
+
         # 메시지 생성
-        message = build_morning_report(nasdaq, koru, ewy, news_summary)
+        message = build_morning_report(nasdaq, koru, ewy, news_summary, accuracy)
         logger.info(f"메시지 생성 완료 ({len(message)} chars)")
 
         # 예측 방향 파싱 및 DB 저장
@@ -185,13 +195,12 @@ async def verify_prediction():
         else:
             actual_direction = "neutral"
 
-        # 예측 기록 가져와서 비교
-        records = await db.get_recent_records(1)
-        if not records:
+        # 오늘 예측 기록 가져와서 비교
+        record = await db.get_prediction(today)
+        if not record:
             logger.warning("오늘 예측 기록 없음")
             return
 
-        record = records[0]
         predicted = record.get("predicted_direction", "neutral")
         correct = predicted == actual_direction
 

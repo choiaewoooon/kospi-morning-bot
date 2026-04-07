@@ -21,6 +21,7 @@ def build_morning_report(
     koru: MarketData,
     ewy: MarketData,
     news_summary: str = "",
+    accuracy: dict | None = None,
 ) -> str:
     """모닝브리핑 텔레그램 메시지 생성 (HTML)"""
 
@@ -92,5 +93,14 @@ def build_morning_report(
             lines.append("")
             lines.append("<b>\U0001f4ca 코스피 예상 코멘트</b>")
             lines.append(f"<blockquote>{comment_part}</blockquote>")
+
+    # 예측률
+    if accuracy and accuracy.get("total", 0) > 0:
+        lines.append("")
+        lines.append(
+            f"\U0001f4c8 <b>코멘트 예측률</b>"
+            f"\n{accuracy['total']}건 중 {accuracy['correct']}건 정답"
+            f"({accuracy['rate']:.0f}%)"
+        )
 
     return "\n".join(lines)

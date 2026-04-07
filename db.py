@@ -47,11 +47,18 @@ async def save_prediction(
 ):
     """아침 예측 저장"""
     async with aiosqlite.connect(DB_PATH) as db:
+        # 이미 검증된 레코드가 있으면 예측 부분만 업데이트 (검증 결과 보존)
         await db.execute(
             """
-            INSERT OR REPLACE INTO predictions
+            INSERT INTO predictions
             (date, nasdaq_pct, koru_pct, ewy_pct, predicted_direction, prediction_comment)
             VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date) DO UPDATE SET
+                nasdaq_pct = excluded.nasdaq_pct,
+                koru_pct = excluded.koru_pct,
+                ewy_pct = excluded.ewy_pct,
+                predicted_direction = excluded.predicted_direction,
+                prediction_comment = excluded.prediction_comment
             """,
             (dt.isoformat(), nasdaq_pct, koru_pct, ewy_pct,
              predicted_direction, prediction_comment),
@@ -85,8 +92,20 @@ async def update_actual(
     logger.info(f"실제 결과 업데이트: {dt} → {actual_direction} (적중: {correct})")
 
 
+async def get_prediction(dt: date) -> dict | None:
+    """특정 날짜의 예측 기록 조회"""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT * FROM predictions WHERE date = ?",
+            (dt.isoformat(),),
+        )
+        row = await cursor.fetchone()
+        return dict(row) if row else None
+
+
 async def get_recent_records(days: int = 14) -> list[dict]:
-    """최근 N일 기록 조회"""
+    """최근 N일 검증 완료된 기록 조회"""
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(
