@@ -97,15 +97,15 @@ async def summarize_news(
 
     try:
         process = await asyncio.create_subprocess_exec(
-            "/opt/homebrew/bin/claude", "-p", prompt,
-            "--output-format", "text",
+            "/Users/choejaewon/.local/bin/gemq", "pro", prompt,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await process.communicate()
 
         if process.returncode != 0:
-            logger.error(f"Claude 호출 실패: {stderr.decode()}")
+            logger.error(f"gemq 호출 실패: {stderr.decode()}")
             return _fallback_format(news_items)
 
         summary = stdout.decode().strip()

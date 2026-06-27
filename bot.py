@@ -249,8 +249,8 @@ async def _analyze_miss(record: dict, kospi_pct: float, actual: str) -> str:
 한 줄로 왜 틀렸는지 써라. 예: "외국인 순매도 폭탄", "환율 급등 영향" 등."""
 
         process = await asyncio.create_subprocess_exec(
-            "/opt/homebrew/bin/claude", "-p", prompt,
-            "--output-format", "text",
+            "/Users/choejaewon/.local/bin/gemq", "pro", prompt,
+            stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
